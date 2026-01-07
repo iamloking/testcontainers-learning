@@ -1,0 +1,40 @@
+# GitHub Actions CI for Java + Maven + Testcontainers (minimal starter)
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build and test (Maven + Testcontainers)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [21]
+    env:
+      MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Show docker info (debug)
+        run: |
+          docker version
+          docker info
+
+      - name: Build and run tests
+        run: mvn -B -T 1C verify
+
+      - name: Archive surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
