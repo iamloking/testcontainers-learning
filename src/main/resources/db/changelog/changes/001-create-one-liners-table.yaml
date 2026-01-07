@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-one-liners-table
+      author: loki
+      preConditions:
+        - onFail: MARK_RAN  # <--- This is the magic line
+          not:
+            tableExists:
+              tableName: one_liners
+      changes:
+        - createTable:
+            tableName: one_liners
+            columns:
+              - column:
+                  name: id
+                  type: BINARY(16)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: text
+                  type: VARCHAR(300)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: author
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: context
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: one_liners
+            columnNames: text, author
+            constraintName: uq_one_liner_text_author
+
+        - createIndex:
+            tableName: one_liners
+            indexName: idx_one_liner_author
+            columns:
+              - column:
+                  name: author
+
+        - createIndex:
+            tableName: one_liners
+            indexName: idx_one_liner_context
+            columns:
+              - column:
+                  name: context
