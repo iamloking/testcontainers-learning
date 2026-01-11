@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+
+    environment:
+      MYSQL_DATABASE: appdb
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD:
+      SERVER_PORT: 3307
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    ports:
+      - "3307:3307"
+      # optional, only for local debugging
+
+    restart: unless-stopped
+
+  oneliner-app:
+    image: oneliner-service
+    container_name: oneliner-app
+
+    depends_on:
+      - mysql
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/appdb
+      SPRING_DATASOURCE_USERNAME:
+      SPRING_DATASOURCE_PASSWORD:
+      SERVER_PORT: 8081
+
+    ports:
+      - "8081:8081"
+
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
